@@ -1,0 +1,36 @@
+# Container Structure Test — Worker Service (.NET)
+# Place at: worker/tests/container-structure-test.yaml
+
+schemaVersion: "2.0.0"
+
+metadataTest:
+  workdir: "/app"
+
+fileExistenceTests:
+  - name: "Worker binary present"
+    path: "/app/Worker.dll"
+    shouldExist: true
+
+  - name: ".NET runtime present"
+    path: "/usr/share/dotnet/dotnet"
+    shouldExist: true
+
+  - name: "No source code in final image"
+    path: "/app/Worker.cs"
+    shouldExist: false
+
+  - name: "No .git in image"
+    path: "/app/.git"
+    shouldExist: false
+
+commandTests:
+  - name: "dotnet runtime present"
+    command: "dotnet"
+    args: ["--info"]
+    exitCode: 0
+    expectedOutput: ["\\.NET"]
+
+  - name: "No root user"
+    command: "whoami"
+    excludedOutput: ["^root$"]
+
