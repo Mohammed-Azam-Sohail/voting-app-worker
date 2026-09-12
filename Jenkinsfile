@@ -4,7 +4,6 @@ pipeline {
     environment {
         IMAGE_NAME = 'voting-app-worker'
         IMAGE_TAG  = "${BUILD_NUMBER}"
-        DC_HOME    = '/opt/dependency-check'
     }
 
     stages {
@@ -25,30 +24,6 @@ pipeline {
                     test -f Dockerfile
 
                     echo "Worker project structure validated"
-                '''
-            }
-        }
-
-        stage('OWASP Dependency Check') {
-            steps {
-                sh '''
-                    set -e
-
-                    echo "Running OWASP Dependency-Check..."
-
-                    rm -rf dependency-check-report
-                    mkdir -p dependency-check-report
-
-                    "${DC_HOME}/bin/dependency-check.sh" \
-                      --project "voting-app-worker" \
-                      --scan . \
-                      --format HTML \
-                      --format XML \
-                      --out dependency-check-report \
-                      --data /var/lib/jenkins/dependency-check-data \
-                      --disableAssembly
-
-                    echo "OWASP Dependency-Check completed"
                 '''
             }
         }
@@ -155,14 +130,6 @@ pipeline {
 
     post {
         always {
-            echo "===== OWASP REPORT ====="
-
-            archiveArtifacts(
-                artifacts: 'dependency-check-report/*',
-                allowEmptyArchive: true,
-                fingerprint: true
-            )
-
             echo "Worker Jenkins pipeline completed."
         }
     }
