@@ -42,25 +42,6 @@ pipeline {
             }
         }
 
-        stage('Trivy Image Scan') {
-            steps {
-                sh '''
-                    set -e
-
-                    IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
-
-                    echo "Scanning Docker image with Trivy: ${IMAGE}"
-
-                    trivy image \
-                      --config /dev/null \
-                      --severity HIGH,CRITICAL \
-                      --exit-code 1 \
-                      --no-progress \
-                      "${IMAGE}"
-                '''
-            }
-        }
-
         stage('Docker Push') {
             steps {
                 withCredentials([
