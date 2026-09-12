@@ -33,7 +33,8 @@ pipeline {
                 sh '''
                     set -e
 
-                    docker build \
+                    docker buildx build \
+                      --load \
                       -t "${IMAGE_NAME}:${IMAGE_TAG}" \
                       -t "${IMAGE_NAME}:latest" \
                       .
