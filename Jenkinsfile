@@ -45,6 +45,7 @@ pipeline {
                       --format HTML \
                       --format XML \
                       --out dependency-check-report \
+                      --data /var/lib/jenkins/dependency-check-data \
                       --disableAssembly
 
                     echo "OWASP Dependency-Check completed"
