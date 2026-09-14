@@ -50,7 +50,6 @@ pipeline {
                 ]) {
                     sh '''
                         set -e
-
                         IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
 
                         echo "$DOCKER_PASSWORD" | docker login \
@@ -71,21 +70,35 @@ pipeline {
 
         stage('Update GitOps') {
             steps {
-                sh '''
-                    set -e
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-worker-git',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_TOKEN'
+                    ),
+                    usernamePassword(
+                        credentialsId: 'dockerhub-worker',
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
+                    )
+                ]) {
+                    sh '''
+                        set -e
 
-                    IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
+                        IMAGE="${DOCKER_USERNAME}/${IMAGE_NAME}"
 
-                    sed -i "s|image: .*|image: ${IMAGE}:${IMAGE_TAG}|" \
-                      k8s/deployment.yaml
+                        sed -i "s|image: .*|image: ${IMAGE}:${IMAGE_TAG}|" \
+                          k8s/deployment.yaml
 
-                    git config user.name "jenkins"
-                    git config user.email "jenkins@localhost"
+                        git config user.name "jenkins"
+                        git config user.email "jenkins@localhost"
 
-                    git add k8s/deployment.yaml
-                    git commit -m "Update worker image to ${IMAGE_TAG}" || exit 0
-                    git push origin HEAD:main
-                '''
+                        git add k8s/deployment.yaml
+                        git commit -m "Update worker image to ${IMAGE_TAG}" || exit 0
+
+                        git push https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/Mohammed-Azam-Sohail/voting-app-worker.git HEAD:main
+                    '''
+                }
             }
         }
     }
