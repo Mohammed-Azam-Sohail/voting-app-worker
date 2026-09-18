@@ -44,7 +44,7 @@ spec:
       automountServiceAccountToken: false
       serviceAccountName: worker-sa
       containers:
-        - image: azam92/voting-app-worker:19
+        - image: azam92/voting-app-worker:20
           name: worker
 
           env:
